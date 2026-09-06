@@ -27,19 +27,22 @@ def get_csv_columns(csv_path: Path) -> list[str]:
         reader = csv.reader(file)
         return next(reader)
 
-def get_documented_file(md_path: Path) -> str | None:
+def get_documented_file(md_txt_path: Path) -> str | None:
     """Return CSV filename declared in MD."""
-    content = md_path.read_text(encoding="utf-8")
+    content = md_txt_path.read_text(encoding="utf-8")
 
-    match = re.search(
-        r"\*\*Corresponding file:\*\*\s*`([^`]+)`",
+    match = re.findall(
+        r"`([^`]+?)(?<!\.csv)(?<!\.txt)(?<!\.pdf)(?<!\ )`",
         content
     )
 
-    return match.group(1) if match else None
+    return match if match else None
 
 def colum_check(data_dir: str, logger: logging.Logger):
     """Check if all columns are present."""
     logger.info(f"Checking {data_dir} for columns")
-    #get_csv_columns(Path(data_dir))
-    print(get_file_pairs(data_dir, logger))
+
+    csv_path, doc_path = get_file_pairs(data_dir, logger)[0]
+    #print(csv_path)
+    print(get_csv_columns(Path(csv_path)))
+    print(get_documented_file(Path(doc_path)))
